@@ -7,7 +7,7 @@ The IND2Connector interface inherits from [IND2Overlapped](./IND2Overlapped.md).
 In addition, IND2Connector defines the following methods. 
 
 - [__Bind__](#bind-method) - Binds the queue pair to a local address.
-- [__Connect__](#ind2connector--connect) - Connects the queue pair to a listening peer.
+- [__Connect__](#ind2connectorconnect) - Connects the queue pair to a listening peer.
 - [__CompleteConnect__](#complete-connect) - Completes the connection request initiated by a previous call to the Connect method.
 - [__Accept__](#accept-method) - Accepts a pending connection request and assigns a queue pair to use in the data exchange.
 - [__Reject__](#reject-method) - Rejects a pending connection request.
