@@ -7,7 +7,7 @@ The IND2Connector interface inherits from [IND2Overlapped](./IND2Overlapped.md).
 In addition, IND2Connector defines the following methods. 
 
 - [__Bind__](#bind-method) - Binds the queue pair to a local address.
-- [__Connect__](#connect-method) - Connects the queue pair to a listening peer.
+- [__Connect__](#ind2connector--connect) - Connects the queue pair to a listening peer.
 - [__CompleteConnect__](#complete-connect) - Completes the connection request initiated by a previous call to the Connect method.
 - [__Accept__](#accept-method) - Accepts a pending connection request and assigns a queue pair to use in the data exchange.
 - [__Reject__](#reject-method) - Rejects a pending connection request.
@@ -56,7 +56,7 @@ When you implement this method, you should return the following return values. I
 - __ND_TOO_MANY_ADDRESSES__ - The client specified a local port number of zero, and the NetworkDirect provider was unable to allocate a port from the ephemeral port space (ports 49152-65535.)
 - __ND_ADDRESS_ALREADY_EXISTS__ - A connection with the combination of local address, local port, remote address, and remote port already exists.
 
-## [IND2Connector::Connect](#connect-method)
+## IND2Connector::Connect
 Connects the queue pair to a listening peer.
 ```
 HRESULT Connect(
