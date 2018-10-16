@@ -6,11 +6,11 @@ For details on getting an instance of this interface, see [Instantiating a Netwo
 The IND2Provider interface inherits the methods of the [IUnknown interface](https://docs.microsoft.com/windows/desktop/api/unknwn/nn-unknwn-iunknown).
 In addition, IND2Provider defines the following methods:
 
-- [__QueryAddressList__](#query-address-list) - Retrieves a list of local addresses that the provider supports.
+- [__QueryAddressList__](#ind2providerqueryaddresslist) - Retrieves a list of local addresses that the provider supports.
 
-- [__ResolveAddress__](#resolve-address) - Resolves a local IPv4 or IPv6 address to a unique adapter ID.
+- [__ResolveAddress__](#ind2providerresolveaddress) - Resolves a local IPv4 or IPv6 address to a unique adapter ID.
 
-- [__OpenAdapter__](#open-adapter) - Retrieves an interface to a local NetworkDirect adapter.
+- [__OpenAdapter__](#ind2provideropenadapter) - Retrieves an interface to a local NetworkDirect adapter.
 
 #### Implementation Notes
 
@@ -30,9 +30,9 @@ iWARP devices are expected to support establishing connections in RDMA mode with
 
 __Registration:__
 
-For details about how to register your provider, see the section [Registering a NetworkDirect service provider](./NetworkDirectSPI.md#register-provider).
+For details about how to register your provider, see the section [Registering a NetworkDirect service provider](./NetworkDirectSPI.md#registering-a-networkdirect-provider).
 
-## [IND2Provider::QueryAddressList](#query-address-list)
+## IND2Provider::QueryAddressList
 Retrieves a list of local addresses that the provider supports.
 
 ```
@@ -62,7 +62,7 @@ When you implement this method, you should return the following return values. I
 __Remarks:__
 To determine the required buffer size, set pAddressList to nullptr, and set the value that is pointed to by pcbAddressList to zero. Then, call this method and use the value that is returned in the pcbAddressList parameter to allocate the pAddressList buffer. You may need to perform these calls in a loop because the size could change between calls.
 
-### [IND2Provider::ResolveAddress](#resolve-address)
+### IND2Provider::ResolveAddress
 Returns a provider-managed unique ID for an adapter when given a local IPv4 or IPv6 address.
 
 ```
@@ -98,7 +98,7 @@ __Remarks:__
 A single NetworkDirect adapter can support more than a single IP address. By making the relationship between the addresses and the adapters explicit, this function allows sharing common resources such as completion queues and memory regions between connections that are active on different IP addresses of the same adapter.
 
 
-## [IND2Provider::OpenAdapter](#open-adapter)
+## IND2Provider::OpenAdapter
 Retrieves an interface to a local NetworkDirect adapter.
 
 ```
@@ -115,7 +115,7 @@ __Parameters:__
   The IID of the adapter interface requested. IID_IND2Adapter must be supported, but other IIDs may be supported as new interfaces are defined.
 - __adapterId__ [in] 
 
-  ID returned by a previous call to the [IND2Provider::ResolveAddress](#resolve-address) method.
+  ID returned by a previous call to the [IND2Provider::ResolveAddress](#ind2providerresolveaddress) method.
 - __ppAdapter__ [out] 
   
   The requested interface to the opened adapter. 

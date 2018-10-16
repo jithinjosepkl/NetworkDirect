@@ -1,14 +1,14 @@
 # IND2CompletionQueue interface
 Use to indicate the completion of an outstanding request, for example, a Send or Receive request. 
-The [IND2Adapter::CreateCompletionQueue](./IND2Adapter.md#create-completion-queue) method returns this interface.
+The [IND2Adapter::CreateCompletionQueue](./IND2Adapter.md#ind2adaptercreatecompletionqueue) method returns this interface.
 
 The IND2CompletionQueue interface inherits from [IND2Overlapped](./IND2Overlapped.md).
 In addition, IND2CompletionQueue defines the following methods:
 
-- [__GetNotifyAffinity__](#get-notify-affinity) - Returns the assigned affinity for processing Notify requests.
-- [__Resize__](#resize-method) - Modifies the number of results entries that a completion queue supports.
-- [__Notify__](#notify-method) - Requests notification for errors and completions.
-- [__GetResults__](#get-results) - Retrieves the request completion results from the completion queue.
+- [__GetNotifyAffinity__](#ind2completionqueuegetnotifyaffinity) - Returns the assigned affinity for processing Notify requests.
+- [__Resize__](#ind2completionqueueresize) - Modifies the number of results entries that a completion queue supports.
+- [__Notify__](#ind2completionqueuenotify) - Requests notification for errors and completions.
+- [__GetResults__](#ind2completionqueuegetresults) - Retrieves the request completion results from the completion queue.
 
 __Remarks:__
 
@@ -20,7 +20,7 @@ For example, in the above diagram, queue pair 1 (colored red) has its Initiator 
 
 I/O requests do not use the traditional OVERLAPPED mechanisms, but they do provide the user the ability to associate a context with each I/O request that is returned through the completion queue when that request completes. I/O requests can be issued and processed without any kernel transitions. Likewise, I/O completions can also be detected and processed without any kernel transitions.
 
-## [IND2CompletionQueue::GetNotifyAffinity](#get-notify-affinity)
+## IND2CompletionQueue::GetNotifyAffinity
 Returns the assigned affinity for processing Notify requests.
 ```
 HRESULT GetNotifyAffinity(
@@ -51,7 +51,7 @@ __Implementation Notes:__
 
 NetworkDirect service providers are encouraged to return affinity information for Notify request completion processing even if they don’t support specifying affinity, rather than returning ND_NOT_SUPPORTED. This allows client code to optimize their notification strategy and CPU usage, especially if all notifications go to the same processor.
 
-## [IND2CompletionQueue::Resize](#resize-method)
+## IND2CompletionQueue::Resize
 Modifies the number of result entries that a completion queue supports.
 ```
 HRESULT Resize(
@@ -72,7 +72,7 @@ When you implement this method, you should return the following return values. I
 - __ND_INSUFFICIENT_RESOURCES__ - The requested number of entries could not be allocated.
 - __ND_INVALID_PARAMETER__ - The requested number of entries exceeds the capabilities of the hardware.
 - __ND_DEVICE_REMOVED__ - The underlying NetworkDirect adapter was removed from the system. Only cleanup operations on the NetworkDirect adapter will succeed.
-- __ND_NOT_SUPPORTED__ - The underlying NetworkDirect adapter does not support resizing of completion queues. ND_ADAPTER_FLAG_CQ_RESIZE_SUPPORTED flag in _AdapterFlags_ of [ND2_ADAPTER_INFO](./IND2Adapter.md#adapter-info) indicates whether resizing of a completion queue is supported.
+- __ND_NOT_SUPPORTED__ - The underlying NetworkDirect adapter does not support resizing of completion queues. ND_ADAPTER_FLAG_CQ_RESIZE_SUPPORTED flag in _AdapterFlags_ of [ND2_ADAPTER_INFO](./IND2Adapter.md#nd2_adapter_info-structure) indicates whether resizing of a completion queue is supported.
 
 __Implementation Notes:__
 
@@ -80,13 +80,13 @@ Provider implementations may allocate more entries than requested, though there 
 
 __Remarks__
 
-To get the limits that are supported by a NetworkDirect adapter, call the [IND2Adapter::Query](IND2Adapter.md#query-method) method. 
+To get the limits that are supported by a NetworkDirect adapter, call the [IND2Adapter::Query](IND2Adapter.md#ind2adapterquery) method. 
 
 You can increase or decrease the size of the queue. If the number you specify is less than the number of results in the queue, the method returns ND_BUFFER_OVERFLOW (the queue remains unchanged).
 
 Providers must ensure that completions do not get lost during a resize operation. Users are not required to quiesce communication before resizing their completion queues. 
 
-## [IND2CompletionQueue::Notify](#notify-method)
+## IND2CompletionQueue::Notify
 Requests notification for errors and completions.
 ```
 HRESULT Notify(
@@ -155,7 +155,7 @@ __Implementation Note:__
 
 Service providers can peek at their completion queues after rearming to see if the next entry holds a valid completion, and if so, immediately complete the request. This does not require mapping completion queue ring buffers to the kernel because the user memory can be dereferenced while in the context of the user's thread.
 
-Providers are expected to eliminate potential race conditions that can occur between the time their hardware writes a new completion entry to the completion queue, after the application called [GetResults](#get-results) and received a return value of zero (or less than the value of the nResults parameter), and the application calling [Notify](#notify-method).
+Providers are expected to eliminate potential race conditions that can occur between the time their hardware writes a new completion entry to the completion queue, after the application called [GetResults](#ind2completionqueuegetresults) and received a return value of zero (or less than the value of the nResults parameter), and the application calling [Notify](#ind2completionqueuenotify).
 
 The following two cases effectively provide applications with the same behavior:
 
@@ -176,9 +176,9 @@ Note that for Case 1, step 3 could be broken into the following two steps:
 1.	Notify returns pending.
 2.	Notify completes.
 
-The original case merges steps 3 and 4 and completes the request immediately. It does not matter when [Notify](#notify-method) is called with respect to the hardware that is writing new entries to the completion queue; the only thing that matters is that [GetResults](#get-results) returned all known entries—any entries written to the completion queue after that point should cause a subsequent Notify call to succeed. 
+The original case merges steps 3 and 4 and completes the request immediately. It does not matter when [Notify](#ind2completionqueuenotify) is called with respect to the hardware that is writing new entries to the completion queue; the only thing that matters is that [GetResults](#ind2completionqueuegetresults) returned all known entries—any entries written to the completion queue after that point should cause a subsequent Notify call to succeed. 
 
-## [ND2_RESULT structure](#nd2-result)
+## ND2_RESULT structure
 Provides the completion status of a request.
 
 ```
@@ -201,7 +201,7 @@ typedef struct _ND2_RESULT {
 
 - __QueuePairContext__
 
-  Queue pair context that is specified in the call to [IND2Adapter::CreateQueuePair](./IND2Adapter.md#create-queue-pair) or [IND2Adapter::CreateQueuePairWithSrq](./IND2Adapter.md#create-queue-pair-with-srq).
+  Queue pair context that is specified in the call to [IND2Adapter::CreateQueuePair](./IND2Adapter.md#ind2adaptercreatequeuepair) or [IND2Adapter::CreateQueuePairWithSrq](./IND2Adapter.md#ind2adaptercreatequeuepairwithsrq).
 
 - __RequestContext__
 
@@ -248,7 +248,7 @@ The following table lists which error codes are valid for the different types of
 |ND_REMOTE_ERROR             |Yes   |Yes      |No    |No          |Yes   |Yes    |
 
 
-## [IND2CompletionQueue::GetResults](#get-results)
+## IND2CompletionQueue::GetResults
 Retrieves the request completion results from the completion queue.
 ```
 ULONG GetResults(
@@ -273,6 +273,6 @@ Returns the number of entries filled in the results array.
 
 __Remarks:__
 
-You need to call this method until there are no further completions in the completion queue. Use the return value to determine the number of returned results. The method fills in the entries in the array with information about completed requests. The request context that is associated with the request is returned in the [ND2_RESULT](#nd2-result) structure to associate completions with requests.
+You need to call this method until there are no further completions in the completion queue. Use the return value to determine the number of returned results. The method fills in the entries in the array with information about completed requests. The request context that is associated with the request is returned in the [ND2_RESULT](#nd2_result-structure) structure to associate completions with requests.
 
 Within a single queue pair, initiator requests (for example, Send, Read, Write, Bind, and Invalidate) and Receive requests complete in the order they were issued. There is no ordering between queue pairs, so if a request is issued to queue pair A before a request is issued to queue pair B, it does _not_ imply that the request for queue pair A will complete before the request for queue pair B.

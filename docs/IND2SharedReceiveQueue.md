@@ -1,22 +1,22 @@
 # IND2SharedReceiveQueue interface
 Use to pool Receive requests among multiple queue pairs. 
-The [IND2Adapter::CreateSharedReceiveQueue](./IND2Adapter.md#create-shared-receive-queue) method returns this interface.
+The [IND2Adapter::CreateSharedReceiveQueue](./IND2Adapter.md#ind2adaptercreatesharedreceivequeue) method returns this interface.
 
 The IND2SharedReceiveQueue interface inherits from [IND2Overlapped](./IND2Overlapped.md).
 In addition, IND2SharedReceiveQueue defines the following methods. 
 
 
-- [__GetNotifyAffinity__](#srq-get-notify-affinity) - Returns the assigned affinity for processing Notify requests.
+- [__GetNotifyAffinity__](#ind2sharedreceivequeuegetnotifyaffinity) - Returns the assigned affinity for processing Notify requests.
 
-- [__Modify__](#srq-modify) - Modifies the number of Receive requests that a shared receive queue supports, and/or the threshold below which the shared receive queue will complete pending Notify requests.
-- [__Notify__](#srq-notify) - Requests notification for errors or for the number of pending Receive requests that are falling below the notification threshold.
-- [__Receive__](#srq-receive) - Posts a Receive request for data from a remote peer connected to any of the queue pairs that are associated with the shared receive queue.
+- [__Modify__](#ind2sharedreceivequeuemodify) - Modifies the number of Receive requests that a shared receive queue supports, and/or the threshold below which the shared receive queue will complete pending Notify requests.
+- [__Notify__](#ind2sharedreceivequeuenotify) - Requests notification for errors or for the number of pending Receive requests that are falling below the notification threshold.
+- [__Receive__](#ind2sharedreceivequeuereceive) - Posts a Receive request for data from a remote peer connected to any of the queue pairs that are associated with the shared receive queue.
 
 __Remarks:__
 
-Shared receive queue support is optional. Support for shared receive queues is identified by the MaxSharedReceiveQueueDepth member of the [ND2_ADAPTER_INFO](./IND2Adapter.md#adapter-info) structure. To get the limit supported by the NetworkDirect adapter, call the [IND2Adapter::Query](./IND2Adapter.md#query-method) method.
+Shared receive queue support is optional. Support for shared receive queues is identified by the MaxSharedReceiveQueueDepth member of the [ND2_ADAPTER_INFO](./IND2Adapter.md#nd2_adapter_info-structure) structure. To get the limit supported by the NetworkDirect adapter, call the [IND2Adapter::Query](./IND2Adapter.md#ind2adapterquery) method.
 
-## [IND2SharedReceiveQueue::GetNotifyAffinity](#srq-get-notify-affinity)
+## IND2SharedReceiveQueue::GetNotifyAffinity
 Returns the assigned affinity for processing Notify requests.
 ```
 HRESULT GetNotifyAffinity(
@@ -48,7 +48,7 @@ Provider implementations should set the notify affinity (including interrupt aff
 
 Providers are encouraged to return affinity information for Notify request completion processing even if they do not support specifying affinity, rather than returning ND_NOT_SUPPORTED. This allows client code to optimize its notification strategy and CPU usage, especially if all notifications go to the same processor.
 
-## [IND2SharedReceiveQueue::Modify](#srq-modify)
+## IND2SharedReceiveQueue::Modify
 Modifies the number of Receive requests that a shared receive queue supports, and/or the threshold below which the shared receive queue will complete pending Notify requests.
 ```
 HRESULT Modify(
@@ -81,12 +81,12 @@ Provider implementations may allocate more entries than requested, although ther
 
 __Remarks:__
 
-To get the limits that are supported by a NetworkDirect adapter, call the [IND2Adapter::Query](./IND2Adapter.md#query-method) method. 
+To get the limits that are supported by a NetworkDirect adapter, call the [IND2Adapter::Query](./IND2Adapter.md#ind2adapterquery) method. 
 
 You can increase or decrease the size of the queue. If the number you specify is less than the number of outstanding Receive requests in the queue, the method returns ND_BUFFER_OVERFLOW (the queue remains unchanged).
 
-## [IND2SharedReceiveQueue::Notify](#srq-notify)
-Requests notification for errors or when the number of outstanding Receive requests falls below the notifyThreshold specified in [IND2Adapter::CreateSharedReceiveQueue](./IND2Adapter.md#create-shared-receive-queue) or [IND2SharedReceiveQueue::Modify](#srq-modify).
+## IND2SharedReceiveQueue::Notify
+Requests notification for errors or when the number of outstanding Receive requests falls below the notifyThreshold specified in [IND2Adapter::CreateSharedReceiveQueue](./IND2Adapter.md#ind2adaptercreatesharedreceivequeue) or [IND2SharedReceiveQueue::Modify](#ind2sharedreceivequeuemodify).
 
 ```
 HRESULT Notify(
@@ -118,7 +118,7 @@ Multiple requests for notification can be outstanding for the same shared receiv
 
 By default, shared receive queues are not set to generate notifications. This method arms the shared receive queue for a threshold notification.
 
-## [IND2SharedReceiveQueue::Receive](#srq-receive)
+## IND2SharedReceiveQueue::Receive
 Receives data from a peer.
 ```
 HRESULT Receive(
@@ -131,10 +131,10 @@ HRESULT Receive(
 __Parameters:__
 - __requestContext__ [in]
 
-  A context value to associate with the request, returned in the RequestContext member of the [ND2_RESULT](./IND2CompletionQueue.md#nd2-result) structure that is returned when the request completes.
+  A context value to associate with the request, returned in the RequestContext member of the [ND2_RESULT](./IND2CompletionQueue.md#nd2_result-structure) structure that is returned when the request completes.
 - __sge__ [in]
 
-  An array of [ND2_SGE](./IND2QueuePair.md#nd2-sge) structures that describe the buffers that will receive the data that the peer sends. May be nullptr if nSge is zero.
+  An array of [ND2_SGE](./IND2QueuePair.md#nd2_sge-structure) structures that describe the buffers that will receive the data that the peer sends. May be nullptr if nSge is zero.
 - __nSge__ [in]
 
   The number of entries in the sge array. May be zero.
@@ -145,8 +145,8 @@ When you implement this method, you should return the following return values. I
 
 - __ND_SUCCESS__ - The operation succeeded. Completion status will be returned through the outbound completion queue associated with the queue pair.
 - __ND_BUFFER_OVERFLOW__ - The request referenced more data than is supported by the underlying hardware.
-- __ND_NO_MORE_ENTRIES__ - The request would have exceeded the number of Receive requests allowed on this shared receive queue. The queueDepth parameter of the [IND2Adapter::CreateSharedReceiveQueue](./IND2Adapter.md#create-shared-receive-queue) method specifies the limit.
-- __ND_DATA_OVERRUN__ - The number of scatter/gather entries in the scatter/gather list exceeded the number allowed on the queue pair. The maxRequestSge parameter of the [IND2Adapter::CreateSharedReceiveQueue](./IND2Adapter.md#create-shared-receive-queue) method specifies the limit.
+- __ND_NO_MORE_ENTRIES__ - The request would have exceeded the number of Receive requests allowed on this shared receive queue. The queueDepth parameter of the [IND2Adapter::CreateSharedReceiveQueue](./IND2Adapter.md#ind2adaptercreatesharedreceivequeue) method specifies the limit.
+- __ND_DATA_OVERRUN__ - The number of scatter/gather entries in the scatter/gather list exceeded the number allowed on the queue pair. The maxRequestSge parameter of the [IND2Adapter::CreateSharedReceiveQueue](./IND2Adapter.md#ind2adaptercreatesharedreceivequeue) method specifies the limit.
 
 __Remarks:__
 
@@ -156,4 +156,4 @@ You must post a Receive request before the peer posts a Send request. The buffer
 
 The protocol determines how many Receive requests you must post and the buffer size that is required for each post.
 
-The array of [ND2_SGE](./IND2QueuePair.md#nd2-sge) structures can be allocated temporarily on the stack.
+The array of [ND2_SGE](./IND2QueuePair.md#nd2_sge-structure) structures can be allocated temporarily on the stack.
