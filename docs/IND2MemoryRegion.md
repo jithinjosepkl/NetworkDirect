@@ -6,12 +6,12 @@ Note that only one memory buffer can be registered to a memory region object. Th
 The IND2MemoryRegion interface inherits from [IND2Overlapped](./IND2Overlapped.md).
 In addition, IND2MemoryRegion defines the following methods.
 
-- [__Register__](#register-method) - Registers an application-defined buffer.
+- [__Register__](#ind2memoryregionregister) - Registers an application-defined buffer.
 
-- [__Deregister__](#deregister-method) - Deregisters a previously registered application-defined buffer.
+- [__Deregister__](#ind2memoryregionderegister) - Deregisters a previously registered application-defined buffer.
 
-- [__GetLocalToken__](#get-local-token) - Retrieves the local token for the memory region, used in [ND2_SGE](./IND2QueuePair.md#nd2-sge) structures as part of I/O requests.
-- [__GetRemoteToken__](#get-remote-token) - Retrieves the remote token that allows remote access to the memory region. It is used by the connected QueuePair in Read and Write requests.
+- [__GetLocalToken__](#ind2memoryregiongetlocaltoken) - Retrieves the local token for the memory region, used in [ND2_SGE](./IND2QueuePair.md#nd2_sge-structure) structures as part of I/O requests.
+- [__GetRemoteToken__](#ind2memoryregiongetremotetoken) - Retrieves the remote token that allows remote access to the memory region. It is used by the connected QueuePair in Read and Write requests.
 
 __Remarks:__
 
@@ -19,7 +19,7 @@ Memory registrations are fundamental to data transfer operations with NetworkDir
 
 Memory registration is typically an expensive operation and the NetworkDirect SPI allows all memory registration and deregistration operations to be processed asynchronously in order to parallelize application processing with registration. Because memory region operations can be asynchronous, there is no opportunity for post-processing by the user-mode NetworkDirect provider libraries that support NetworkDirect adapters.
 
-## [IND2MemoryRegion::Register](#register-method)
+## IND2MemoryRegion::Register
 Registers an application-defined buffer that is used for Send, Receive, Read, and Write requests. 
 ```
 HRESULT Register(
@@ -77,18 +77,18 @@ When you implement this method, you should return the following return values. I
 - __ND_INSUFFICIENT_RESOURCES__ - There were not enough hardware resources to register the memory.
 - __ND_ACCESS_VIOLATION__ - The specified buffer or buffer size was not valid.
 - __ND_DEVICE_REMOVED__ - The underlying NetworkDirect adapter was removed from the system. Only cleanup operations on the NetworkDirect adapter will succeed.
-- __ND_INVALID_PARAMETER__ - The buffer exceeds the size supported by the adapter. For details, see the MaxRegistrationSize member of the [ND2_ADAPTER_INFO](./IND2Adapter.md#adapter-info) structure.
+- __ND_INVALID_PARAMETER__ - The buffer exceeds the size supported by the adapter. For details, see the MaxRegistrationSize member of the [ND2_ADAPTER_INFO](./IND2Adapter.md#nd2_adapter_info-structure) structure.
 
 
 __Remarks:__
 
-The MaxRegistrationSize member of the [ND2_ADAPTER_INFO](./IND2Adapter.md#adapter-info) structure contains the maximum application-defined buffer size that can be registered with the adapter. To get the adapter information, call the [IND2Adapter::Query](./IND2Adapter.md#query-method) method.
+The MaxRegistrationSize member of the [ND2_ADAPTER_INFO](./IND2Adapter.md#nd2_adapter_info-structure) structure contains the maximum application-defined buffer size that can be registered with the adapter. To get the adapter information, call the [IND2Adapter::Query](./IND2Adapter.md#ind2adapterquery) method.
 
-You can allocate and register your memory before connecting, or you can start the connection process and then register the memory before calling [IND2Connector::Accept](./IND2Connector.md#accept-method) or [IND2Connector::CompleteConnect](./IND2Connector.md#complete-connect).
+You can allocate and register your memory before connecting, or you can start the connection process and then register the memory before calling [IND2Connector::Accept](./IND2Connector.md#ind2connectoraccept) or [IND2Connector::CompleteConnect](./IND2Connector.md#ind2connectorcompleteconnect).
 
 The registered memory's scope is the adapter object. It can be used on any objects within the adapter, for example, multiple queue pairs can both use the registered memory.
 
-## [IND2MemoryRegion::Deregister](#deregister-method)
+## IND2MemoryRegion::Deregister
 Removes the memory registration for an application-defined buffer.
 ```
 HRESULT Deregister (
@@ -115,8 +115,8 @@ __Remarks:__
 
 It is very important that Deregister is called before the memory region is released, otherwise the registered memory buffer will stay locked and count against your process.
 
-## [IND2MemoryRegion::GetLocalToken](#get-local-token)
-Gets the local memory token to allow the region to be referenced in [ND2_SGE](./IND2QueuePair.md#nd2-sge) structures that are passed to Send, Receive, Read, and Write requests.
+## IND2MemoryRegion::GetLocalToken
+Gets the local memory token to allow the region to be referenced in [ND2_SGE](./IND2QueuePair.md#nd2_sge-structure) structures that are passed to Send, Receive, Read, and Write requests.
 
 ```
 UINT32 GetLocalToken();
@@ -124,9 +124,9 @@ UINT32 GetLocalToken();
 
 __Return Value:__
 
-The local token to use in [ND2_SGE](./IND2QueuePair.md#nd2-sge) structures.
+The local token to use in [ND2_SGE](./IND2QueuePair.md#nd2_sge-structure) structures.
 
-## [IND2MemoryRegion::GetRemoteToken](#get-remote-token)
+## IND2MemoryRegion::GetRemoteToken
 Gets the remote memory token to send to remote peers to enable them to perform Read or Write requests against the region.
 
 ```

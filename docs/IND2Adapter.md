@@ -1,22 +1,22 @@
 # IND2Adapter interface
-Use to manage a NetworkDirect adapter. The [IND2Provider::OpenAdapter](./IND2Provider.md#open-adapter) method returns this interface.
+Use to manage a NetworkDirect adapter. The [IND2Provider::OpenAdapter](./IND2Provider.md#ind2provideropenadapter) method returns this interface.
 
 
 The IND2Adapter interface inherits from [IUnknown interface](https://docs.microsoft.com/windows/desktop/api/unknwn/nn-unknwn-iunknown). In addition, IND2Adapter defines the following methods:
 
-- [__CreateOverlappedFile__](#create-overlapped-file) - Creates a file handle for processing overlapped requests.
-- [__Query__](#query-method) - Retrieves the capabilities and limits of the NetworkDirect adapter.
-- [__QueryAddressList__](#query-address-list) - Returns the IPv4 and IPv6 addresses that are supported by the adapter instance.
-- [__CreateCompletionQueue__](#create-completion-queue) - Allocates a completion queue.
-- [__CreateMemoryRegion__](#create-memory-region) - Creates an [IND2MemoryRegion](./IND2MemoryRegion.md) instance that can be used to register an application-defined buffer to be used in requests issued to the initiator and receive queues of a queue pair.
-- [__CreateSharedReceiveQueue__](#create-shared-receive-queue) - Creates a new [IND2SharedReceiveQueue](./IND2SharedReceiveQueue.md) instance.
-- [__CreateQueuePair__](#create-queue-pair) - Creates a new [IND2QueuePair](./IND2QueuePair.md) instance.
-- [__CreateQueuePairWithSrq__](#create-queue-pair-with-srq) - Creates a new [IND2QueuePair](./IND2QueuePair.md) instance that uses a shared receive queue.
-- [__CreateConnector__](#create-connector) - Creates a new [IND2Connector](./IND2Connector.md) instance.
-- [__CreateListener__](#create-listener) - Creates a new [IND2Listener](./IND2Listener.md) instance that listens for incoming connection requests.
+- [__CreateOverlappedFile__](#ind2adaptercreateoverlappedfile) - Creates a file handle for processing overlapped requests.
+- [__Query__](#ind2adapterquery) - Retrieves the capabilities and limits of the NetworkDirect adapter.
+- [__QueryAddressList__](#ind2adapterqueryaddresslist) - Returns the IPv4 and IPv6 addresses that are supported by the adapter instance.
+- [__CreateCompletionQueue__](#ind2adaptercreatecompletionqueue) - Allocates a completion queue.
+- [__CreateMemoryRegion__](#ind2adaptercreatememoryregion) - Creates an [IND2MemoryRegion](./IND2MemoryRegion.md) instance that can be used to register an application-defined buffer to be used in requests issued to the initiator and receive queues of a queue pair.
+- [__CreateSharedReceiveQueue__](#ind2adaptercreatesharedreceivequeue) - Creates a new [IND2SharedReceiveQueue](./IND2SharedReceiveQueue.md) instance.
+- [__CreateQueuePair__](#ind2adaptercreatequeuepair) - Creates a new [IND2QueuePair](./IND2QueuePair.md) instance.
+- [__CreateQueuePairWithSrq__](#ind2adaptercreatequeuepairwithsrq) - Creates a new [IND2QueuePair](./IND2QueuePair.md) instance that uses a shared receive queue.
+- [__CreateConnector__](#ind2adaptercreateconnector) - Creates a new [IND2Connector](./IND2Connector.md) instance.
+- [__CreateListener__](#ind2adaptercreatelistener) - Creates a new [IND2Listener](./IND2Listener.md) instance that listens for incoming connection requests.
 
 
-## [IND2Adapter::CreateOverlappedFile](#create-overlapped-file)
+## IND2Adapter::CreateOverlappedFile
 Creates a file handle that will be used to process overlapped requests on interfaces derived from [IND2Overlapped](IND2Overlapped.md).
 
 ```
@@ -56,7 +56,7 @@ You could use the handle to perform the following tasks:
 - Bind to an I/O completion port if you want to get notification of overlapped operations (for example, memory registration or completion queue notification) delivered to an I/O completion port.
 - Associate the handle with the system thread pool by using the [BindIoCompletionCallback](https://docs.microsoft.com/windows/desktop/api/winbase/nf-winbase-bindiocompletioncallback) function.
 
-## [ND2_ADAPTER_INFO structure](#adapter-info)
+## ND2_ADAPTER_INFO structure
 Describes the capabilities and limits of the NetworkDirect adapter.
 
 ```
@@ -113,7 +113,7 @@ __Members:__
 
 - __MaxRegistrationSize__
 
-  The maximum size, in bytes, of an application-defined buffer that you can register using [IND2Adapter::RegisterMemory](#register-memory). This is the maximum size of a single registration that the adapter can address. 
+  The maximum size, in bytes, of an application-defined buffer that you can register using [IND2MemoryRegion::Register](./IND2MemoryRegion.md#ind2memoryregionregister). This is the maximum size of a single registration that the adapter can address. 
 
   Note that since each SGE of a request references a memory registration, a single request could transfer more than this limit.
 
@@ -175,11 +175,11 @@ __Members:__
 
 - __MaxCallerData__
 
-  The maximum size, in bytes, of the private data that can be sent when calling the [IND2Connector::Connect](IND2Connector.md#connect-method) method.
+  The maximum size, in bytes, of the private data that can be sent when calling the [IND2Connector::Connect](IND2Connector.md#ind2connectorconnect) method.
 
 - __MaxCalleeData__
 
-  The maximum size, in bytes, of the private data that can be sent when calling the [IND2Connector::Accept](IND2Connector.md#accept-method) method or the [IND2Connector::Reject](IND2Connector.md#reject-method) method.
+  The maximum size, in bytes, of the private data that can be sent when calling the [IND2Connector::Accept](IND2Connector.md#ind2connectoraccept) method or the [IND2Connector::Reject](IND2Connector.md#ind2connectorreject) method.
 
 - __AdapterFlags__
 
@@ -215,7 +215,7 @@ This structure defines the standard parameters of all NetworkDirect adapters. On
 
 See also [NDK_ADAPTER_INFO structure](https://docs.microsoft.com/windows/desktop/api/ndkinfo/ns-ndkinfo-_ndk_adapter_info).
 
-## [IND2Adapter::Query](#query-method)
+## IND2Adapter::Query
 Retrieves the capabilities and limits of the NetworkDirect adapter.
 
 ```
@@ -228,7 +228,7 @@ HRESULT Query(
 __Parameters:__
 - __pInfo__ [in, out, optional] 
 
-  An [ND2_ADAPTER_INFO structure](#adapter-info) that will contain the NetworkDirect adapter's information.  May be nullptr if *pcbInfo is zero.  If non-nullptr, the InfoVersion member must be set on input.
+  An [ND2_ADAPTER_INFO structure](#nd2_adapter_info-structure) that will contain the NetworkDirect adapter's information.  May be nullptr if *pcbInfo is zero.  If non-nullptr, the InfoVersion member must be set on input.
 - __pcbInfo__ [in, out] 
 
   The size, in bytes, of the pInfo buffer. If the buffer is too small to hold the information, the method fails with ND_BUFFER_OVERFLOW, and it sets this parameter to the required buffer size. If the buffer is too big on input, the method sets this parameter to the size used.
@@ -242,7 +242,7 @@ When you implement this method, you should return the following return values. I
 
 __Implementation Notes:__
 
-A query for the capabilities must return ND_SUCCESS if the input buffer size is sizeof([ND2_ADAPTER_INFO](#adapter-info)), even if there is additional vendor-specific data that isn’t returned.
+A query for the capabilities must return ND_SUCCESS if the input buffer size is sizeof([ND2_ADAPTER_INFO](#nd2_adapter_info-structure)), even if there is additional vendor-specific data that isn’t returned.
 
 __Remarks:__
 
@@ -251,14 +251,14 @@ To determine the required buffer size, you can set pInfo to nullptr and the valu
 The limits are provided by the NetworkDirect adapter hardware, which are independent of actual system resource limits such as available memory. The maximum limits reported may not be realized due to system load.
 
 Getting the limits before you create a queue pair or completion queue or before you register memory will let you know if your application can run within the limits of hardware.
-- You can use the _LargeRequestThreshold_ member of [ND2_ADAPTER_INFO](#adapter-info) to determine when _Read_ and _Write_ operations will yield better results than using Send and Receive. 
-- You can use the _InlineRequestThreshold_ member of [ND2_ADAPTER_INFO](#adapter-info) to determine when inline _Send_ and _Write_ operations will yield better results than using traditional DMA.
+- You can use the _LargeRequestThreshold_ member of [ND2_ADAPTER_INFO](#nd2_adapter_info-structure) to determine when _Read_ and _Write_ operations will yield better results than using Send and Receive. 
+- You can use the _InlineRequestThreshold_ member of [ND2_ADAPTER_INFO](#nd2_adapter_info-structure) to determine when inline _Send_ and _Write_ operations will yield better results than using traditional DMA.
 
 __Implementation Note:__
 
 The LargeRequestThreshold and InlineRequestThreshold values should be dynamically determined by providers whenever possible.
 
-## [IND2Adapter::QueryAddressList](#query-address-list)
+## IND2Adapter::QueryAddressList
 Retrieves a list of local addresses that the adapter supports.
 
 ```
@@ -288,7 +288,7 @@ __Remarks:__
 
 To determine the required buffer size, set pAddressList to nullptr and pcbAddressList to zero. Then call this method and use the value returned in the pcbAddressList parameter to allocate the pAddressList buffer. You should perform these calls in a loop because the size could change between calls.
 
-## [IND2Adapter::CreateCompletionQueue](#create-completion-queue)
+## IND2Adapter::CreateCompletionQueue
 Allocates a completion queue.
 ```
 HRESULT CreateCompletionQueue(
@@ -307,11 +307,11 @@ __Parameters:__
   The IID of the completion queue interface requested. IID_IND2CompletionQueue must be supported, but other IIDs may be supported as new interfaces are defined.
 - __hOverlappedFile__ [in]
 
-  Handle returned by a previous call to [IND2Adapter::CreateOverlappedFile](#create-overlapped-file), on which overlapped operations on this completion queue should be performed.
+  Handle returned by a previous call to [IND2Adapter::CreateOverlappedFile](#ind2adaptercreateoverlappedfile), on which overlapped operations on this completion queue should be performed.
 
 - __queueDepth__ [in] 
 
-  The number of completion queue entries to support. The value must be greater than zero and less than the MaxCqDepth member of the [ND2_ADAPTER_INFO](#adapter-info) structure.
+  The number of completion queue entries to support. The value must be greater than zero and less than the MaxCqDepth member of the [ND2_ADAPTER_INFO](#nd2_adapter_info-structure) structure.
 
 - __group__ [in] 
 
@@ -341,10 +341,10 @@ Provider implementations should set the notify affinity (including interrupt aff
 
 __Remarks:__
 
-You must create at least one completion queue. You can create one for inbound requests and another for outbound requests, or you can use the same queue for both. You specify the completion queue when you call [IND2Adapter::CreateQueuePair](#create-queue-pair) to create a queue pair.
+You must create at least one completion queue. You can create one for inbound requests and another for outbound requests, or you can use the same queue for both. You specify the completion queue when you call [IND2Adapter::CreateQueuePair](#ind2adaptercreatequeuepair) to create a queue pair.
 More than one queue pair can specify the same completion queue.
 
-## [IND2Adapter::CreateMemoryRegion](#create-memory-region)
+## IND2Adapter::CreateMemoryRegion
 Allocates a memory region.
 ```
 HRESULT CreateMemoryRegion(
@@ -360,7 +360,7 @@ __Parameters:__
   The IID of the memory region interface requested. IID_IND2MemoryRegion must be supported, but other IIDs may be supported as new interfaces are defined.
 - __hOverlappedFile__ [in]
 
-  Handle returned by a previous call to [IND2Adapter::CreateOverlappedFile](#create-overlapped-file), on which overlapped operations on this memory region should be performed.
+  Handle returned by a previous call to [IND2Adapter::CreateOverlappedFile](#ind2adaptercreateoverlappedfile), on which overlapped operations on this memory region should be performed.
 - __ppMemoryRegion__ [out] 
 
   An [IND2MemoryRegion](./IND2MemoryRegion.md) interface to the memory region.
@@ -378,7 +378,7 @@ __Remarks__
 
 You must create memory regions to reference memory in data transfer operations.
 
-## [IND2Adapter::CreateSharedReceiveQueue](#create-shared-receive-queue)
+## IND2Adapter::CreateSharedReceiveQueue
 Allocates a shared receive queue.
 ```
 HRESULT CreateSharedReceiveQueue(
@@ -399,7 +399,7 @@ __Parameters:__
   The IID of the memory region interface requested. IID_IND2SharedReceiveQueue must be supported, but other IIDs may be supported as new interfaces are defined.
 - __hOverlappedFile__ [in]
 
-  Handle returned by a previous call to [IND2Adapter::CreateOverlappedFile](#create-overlapped-file), on which overlapped operations on this shared receive queue should be performed.
+  Handle returned by a previous call to [IND2Adapter::CreateOverlappedFile](#ind2adaptercreateoverlappedfile), on which overlapped operations on this shared receive queue should be performed.
 - __queueDepth__ [in] 
 
   The maximum number of outstanding _Receive_ requests.
@@ -437,9 +437,9 @@ Provider implementations should set the notify affinity (including interrupt aff
 
 __Remarks:__
 
-Shared receive queues allow pooling receive buffers between multiple queue pairs. To use a shared receive queue, you must create queue pairs by using [IND2Adapter::CreateQueuePairWithSrq](#create-queue-pair-with-srq) method.
+Shared receive queues allow pooling receive buffers between multiple queue pairs. To use a shared receive queue, you must create queue pairs by using [IND2Adapter::CreateQueuePairWithSrq](#ind2adaptercreatequeuepairwithsrq) method.
 
-## [IND2Adapter::CreateQueuePair](#create-queue-pair)
+## IND2Adapter::CreateQueuePair
 Creates a queue pair to use for data transfers.
 ```
 HRESULT CreateQueuePair(
@@ -468,7 +468,7 @@ __Parameters:__
   An [IND2CompletionQueue](./IND2CompletionQueue.md) interface. The interface is used to queue _Send_, _Bind_, _Invalidate_, _Read_, and _Write_ request results.
 - __context__ [in] 
 
-  Context value to associate with the queue pair, returned in the _RequestContext_ member of the [ND2_RESULT](./IND2CompletionQueue.md#nd2-result) structure when calling [IND2CompletionQueue::GetResults](./IND2CompletionQueue.md#get-results).
+  Context value to associate with the queue pair, returned in the _RequestContext_ member of the [ND2_RESULT](./IND2CompletionQueue.md#nd2_result-structure) structure when calling [IND2CompletionQueue::GetResults](./IND2CompletionQueue.md#ind2completionqueuegetresults).
 - __receiveQueueDepth__ [in] 
 
   The maximum number of outstanding _Receive_ requests.
@@ -513,13 +513,13 @@ NetworkDirect service providers are free to return more resources than requested
 
 __Remarks__
 
-To get the limits that are supported by the NetworkDirect adapter, call the [IND2Adapter::Query](#query-method) method. 
+To get the limits that are supported by the NetworkDirect adapter, call the [IND2Adapter::Query](#ind2adapterquery) method. 
 
 You can specify the same completion queue for both pReceiveCompletionQueue and pInitiatorCompletionQueue. The initiator completion queue reports completions for all requests other than _Receive_ requests. 
 
 An instance of the [IND2Connector](./IND2Connector.md) interface can have only a single queue pair associated with it at a time. To disassociate the queue pair from the connector, the queue pair must be disconnected.
 
-## [IND2Adapter::CreateQueuePairWithSrq](#create-queue-pair-with-srq)
+## IND2Adapter::CreateQueuePairWithSrq
 Creates a queue pair to use for data transfers that are associated with a shared receive queue.
 ```
 HRESULT CreateQueuePairWithSrq(
@@ -554,7 +554,7 @@ __Parameters:__
 
 - __context__ [in] 
 
-  Context value to associate with the queue pair, returned in the _RequestContext_ member of the [ND2_RESULT](./IND2CompletionQueue.md#nd2-result) structure when calling [IND2CompletionQueue::GetResults](./IND2CompletionQueue.md#get-results).
+  Context value to associate with the queue pair, returned in the _RequestContext_ member of the [ND2_RESULT](./IND2CompletionQueue.md#nd2_result-structure) structure when calling [IND2CompletionQueue::GetResults](./IND2CompletionQueue.md#ind2completionqueuegetresults).
 
 - __initiatorQueueDepth__ [in] 
 
@@ -595,7 +595,7 @@ Providers must ensure that a _Send_ request that arrives at a queue pair that is
 
 __Remarks:__
 
-To get the limits that are supported by the NetworkDirect adapter, call the [IND2Adapter::Query](#query-method) method. 
+To get the limits that are supported by the NetworkDirect adapter, call the [IND2Adapter::Query](#ind2adapterquery) method. 
 
 You can specify the same completion queue for both pReceiveCompletionQueue and pInitiatorCompletionQueue. The initiator completion queue reports completions for all requests other than Receive requests.
 
@@ -621,7 +621,7 @@ __Parameters:__
 
 - __hOverlappedFile__ [in]
 
-  Handle returned by a previous call to [IND2Adapter::CreateOverlappedFile](#create-overlapped-file), on which overlapped operations on this connector should be performed.
+  Handle returned by a previous call to [IND2Adapter::CreateOverlappedFile](#ind2adaptercreateoverlappedfile), on which overlapped operations on this connector should be performed.
 
 - __ppConnector__ [out] 
 
@@ -636,7 +636,7 @@ When you implement this method, you should return the following return values. I
 - __ND_INSUFFICIENT_RESOURCES__ - There was not enough hardware resources to create the connector.
 - __ND_DEVICE_REMOVED__ - The underlying NetworkDirect adapter was removed from the system. Only cleanup operations on the NetworkDirect adapter will succeed.
 
-# [IND2Adapter::CreateListener](#create-listener)
+# IND2Adapter::CreateListener
 Creates a new [IND2Listener](./IND2Listener.md) instance.
 ```
 HRESULT CreateListener(
@@ -653,7 +653,7 @@ __Parameters:__
 
 - __hOverlappedFile__ [in]
 
-  Handle returned by a previous call to [IND2Adapter::CreateOverlappedFile](#create-overlapped-file), on which overlapped operations on this listen should be performed.
+  Handle returned by a previous call to [IND2Adapter::CreateOverlappedFile](#ind2adaptercreateoverlappedfile), on which overlapped operations on this listen should be performed.
 
 - __ppListener__ [out] 
 

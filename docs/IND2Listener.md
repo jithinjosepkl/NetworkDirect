@@ -1,12 +1,12 @@
 # IND2Listener interface
-Use to listen for connection requests from peers. The [IND2Adapter::CreateListener](./IND2Adapter.md#create-listener) method returns this interface.
+Use to listen for connection requests from peers. The [IND2Adapter::CreateListener](./IND2Adapter.md#ind2adaptercreatelistener) method returns this interface.
 
 The IND2Listener interface inherits from [IND2Overlapped](./IND2Overlapped.md). In addition, IND2Listener defines the following methods. 
 
-- [__Bind__](#bind-method) - Binds listener object to a local address.
-- [__Listen__](#listen-method) - Starts listening for incoming connection requests.
-- [__GetLocalAddress__](#get-local-address) - Retrieves the address of the listen object.
-- [__GetConnectionRequest__](#get-connection-request) - Retrieves the handle for a pending connection request.
+- [__Bind__](#ind2listenerbind) - Binds listener object to a local address.
+- [__Listen__](#ind2listenerlisten) - Starts listening for incoming connection requests.
+- [__GetLocalAddress__](#ind2listenergetlocaladdress) - Retrieves the address of the listen object.
+- [__GetConnectionRequest__](#ind2listenergetconnectionrequest) - Retrieves the handle for a pending connection request.
 
 __Remarks:__
 
@@ -25,11 +25,11 @@ The passive side makes the following calls:
 
 The iWARP specification requires that the active side always initiates a Send request to the passive side before the passive side can issue a Send request to the active side. After the connection is established, the passive side cannot issue a Send request until it has received its first message from the active side.This requires that the passive side always issues at least one Receive request, and waits for it to complete before it can begin issuing Send requests (even if it issues only Send requests after that time).
 
-Either side of a connection can terminate the connection by calling the [IND2Connector::Disconnect](./IND2Connector.md#disconnect-method) method. When a queue pair is disconnected, all requests are flushed. The completion status is ND_CANCELED for all outstanding Send and Receive requests on both sides of the connection.
+Either side of a connection can terminate the connection by calling the [IND2Connector::Disconnect](./IND2Connector.md#ind2connectordisconnect) method. When a queue pair is disconnected, all requests are flushed. The completion status is ND_CANCELED for all outstanding Send and Receive requests on both sides of the connection.
 
 NetworkDirect providers should not make any assumptions about client response times to asynchronous connection establishment events, and they should make every effort to accommodate clients that experience delays in processing connection-related I/O completions.
 
-## [IND2Listener::Bind](#bind-method)
+## IND2Listener::Bind
 Binds Listener to a local address.
 ```
 HRESULT Bind(
@@ -60,7 +60,7 @@ When you implement this method, you should return the following return values. I
 - __ND_TOO_MANY_ADDRESSES__ - The client specified a local port number of zero, and the NetworkDirect provider was unable to allocate a port from the ephemeral port space (ports 49152-65535.)
 
 
-## [IND2Listener::Listen](#listen-method)
+## IND2Listener::Listen
 Starts listening for incoming connection requests.
 ```
 HRESULT Listen(
@@ -89,7 +89,7 @@ __Remarks:__
 
 The server side of a client-server application listens for connection requests from the client side.
 
-## [IND2Listener::GetLocalAddress](#get-local-address)
+## IND2Listener::GetLocalAddress
 Retrieves the listen object's address, which includes the adapter address and port number. To succeed, the listen object must be listening.
 ```
 HRESULT GetLocalAddress(
@@ -116,7 +116,7 @@ When you implement this method, you should return the following return values. I
 - __ND_BUFFER_OVERFLOW__ - The pAddress buffer is not large enough to hold the address, and the buffer was not modified. The pcbAddress parameter is updated with the required buffer size.
 - __ND_INVALID_DEVICE_STATE__ - The listen object is not listening.
 
-## [IND2Listener::GetConnectionRequest](#get-connection-request)
+## IND2Listener::GetConnectionRequest
 Retrieves the handle for a pending connection request.
 
 ```
@@ -130,7 +130,7 @@ __Parameters:__
 
 - __pConnector__ [in, out] 
 
-  An interface to the connector request that is returned by a previous call to [IND2Adapter::CreateConnectionRequest](./IND2Adapter.md#create-connection-request).
+  An interface to the connector request that is returned by a previous call to [IND2Adapter::CreateConnector](./IND2Adapter.md#ind2adaptercreateconnector).
 
 - __pOverlapped__ [in, out] 
 
@@ -147,4 +147,4 @@ When you implement this method, you should return the following return values. I
 
 __Remarks:__
 
-You can issue multiple GetConnectionRequest requests to prepare for future connection requests. The overlapped requests complete one at a time for each connection request that is received. You detect completion of the overlapped request like you do for any other overlapped operation (for more information, see the Remarks for [IND2Adapter::CreateOverlappedFile](./IND2Adapter.md#create-overlapped-file)).
+You can issue multiple GetConnectionRequest requests to prepare for future connection requests. The overlapped requests complete one at a time for each connection request that is received. You detect completion of the overlapped request like you do for any other overlapped operation (for more information, see the Remarks for [IND2Adapter::CreateOverlappedFile](./IND2Adapter.md#ind2adaptercreateoverlappedfile)).

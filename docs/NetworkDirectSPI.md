@@ -11,21 +11,21 @@ There is no support for marshaling in the NetworkDirect SPI architecture, and th
 The NetworkDirect SPI framework defines the following interfaces:
 
 
-- [__IND2Provider:__](./IND2Provider.md) Represents a service provider. IND2Adapter objects are instantiated through the [IND2Provider::OpenAdapter](./IND2Provider.md#open-adatper) method.
+- [__IND2Provider:__](./IND2Provider.md) Represents a service provider. IND2Adapter objects are instantiated through the [IND2Provider::OpenAdapter](./IND2Provider.md#ind2provideropenadapter) method.
 - [__IND2Overlapped:__](IND2Overlapped.md) Base class for objects on which overlapped operations can be performed.
 - [__IND2Adapter__:](./IND2Adapter.md) Interface to a service provider’s hardware adapter instance.
-- [__IND2CompletionQueue__](./IND2CompletionQueue.md): Interface to a completion queue instance. Created through the [IND2Adapter::CreateCompletionQueue](./IND2Adapter.md#create-completion-queue) method.
-- [__IND2MemoryRegion__](./IND2MemoryRegion.md) - Interface to a memory region, which represents a local buffer, registered with an adapter instance. Created through the [IND2Adapter::CreateMemoryRegion](./IND2Adapter.md#create-memory-region) method.
-- [__IND2SharedReceiveQueue__](./IND2SharedReceiveQueue.md): Interface to a shared receive queue, used to aggregate receive buffers between queue pairs. Created through the [IND2Adapter::CreateSharedReceiveQueue](./IND2Adapter.md#create-shared-receive-queue) method.
-- [__IND2QueuePair__](./IND2QueuePair.md):	Interface to a queue pair instance, which is used to perform I/O operations. Created through the [IND2Adapter::CreateQueuePair](./IND2Adapter.md#create-queue-pair) or [IND2Adapter::CreateQueuePairWithSrq](./IND2Adapter.md#create-queue-pair-with-srq) method.
-- [__IND2Connector__](./IND2Connector.md):	Interface to a connector instance that is used to manage connection establishment for IND2QueuePair objects. Created through the [IND2Adapter::CreateConnector](./IND2Adapter.md#create-connector) method.
-- [__IND2Listener__](./IND2Listener.md): Interface to a listen request. Created through the [IND2Adapter::CreateListener](./IND2Adapter.md#create-listener) method.
+- [__IND2CompletionQueue__](./IND2CompletionQueue.md): Interface to a completion queue instance. Created through the [IND2Adapter::CreateCompletionQueue](./IND2Adapter.md#ind2adaptercreatecompletionqueue) method.
+- [__IND2MemoryRegion__](./IND2MemoryRegion.md) - Interface to a memory region, which represents a local buffer, registered with an adapter instance. Created through the [IND2Adapter::CreateMemoryRegion](./IND2Adapter.md#ind2adaptercreatememoryregion) method.
+- [__IND2SharedReceiveQueue__](./IND2SharedReceiveQueue.md): Interface to a shared receive queue, used to aggregate receive buffers between queue pairs. Created through the [IND2Adapter::CreateSharedReceiveQueue](./IND2Adapter.md#ind2adaptercreatesharedreceivequeue) method.
+- [__IND2QueuePair__](./IND2QueuePair.md): Interface to a queue pair instance, which is used to perform I/O operations. Created through the [IND2Adapter::CreateQueuePair](./IND2Adapter.md#ind2adaptercreatequeuepair) or [IND2Adapter::CreateQueuePairWithSrq](./IND2Adapter.md#ind2adaptercreatequeuepairwithsrq) method.
+- [__IND2Connector__](./IND2Connector.md): Interface to a connector instance that is used to manage connection establishment for IND2QueuePair objects. Created through the [IND2Adapter::CreateConnector](./IND2Adapter.md#ind2adaptercreateconnector) method.
+- [__IND2Listener__](./IND2Listener.md): Interface to a listen request. Created through the [IND2Adapter::CreateListener](./IND2Adapter.md#ind2adaptercreatelistener) method.
 
 ## Provider management
 
 NetworkDirect SPI applications support zero, one, or more service provider libraries. NetworkDirect provider management follows the established mechanisms defined for [Windows Sockets Direct](https://docs.microsoft.com/windows-hardware/drivers/network/windows-sockets-direct) providers and traditional layered service providers.
 
-### [Registering a NetworkDirect provider](#register-provider)
+### Registering a NetworkDirect provider
 
 To register your provider, call the [WSCInstallProvider](https://docs.microsoft.com/windows/desktop/api/ws2spi/nf-ws2spi-wscinstallprovider) function. The following fields of the [WSAPROTOCOL_INFO](https://msdn.microsoft.com/758c5553-056f-4ea5-a851-30ef641ffb14) structure identify the provider as a NetworkDirect provider.
 
@@ -55,7 +55,7 @@ No protocols are defined by the NetworkDirect SPI architecture.
 
 __iProtocolMaxOffset__: 0
 
-### [Instantiating a NetworkDirect provider](#instantiate-provider)
+### Instantiating a NetworkDirect provider
 To get the NetworkDirect providers that are registered on the computer, call the [WSCEnumProtocols](https://docs.microsoft.com/windows/desktop/api/ws2spi/nf-ws2spi-wscenumprotocols) function. For each protocol that the function returns, compare the members of the [WSAPROTOCOL_INFO](https://msdn.microsoft.com/758c5553-056f-4ea5-a851-30ef641ffb14) structure to those that are specified in the above section. If the member values match, the protocol can be a NetworkDirect provider.
 
 To determine if the provider is a NetworkDirect service provider, you must try to instantiate the IND2Provider interface. 
@@ -66,12 +66,12 @@ The following steps show how to instantiate the provider:
 
 Service provider libraries are expected to implement a [DllCanUnloadNow](https://docs.microsoft.com/windows/desktop/api/combaseapi/nf-combaseapi-dllcanunloadnow) entry point to allow clients to unload service provider libraries when they are no longer in use. Providers must also be able to handle multiple calls for the IND2Provider interface.
 
-Now that you have a provider, you need to determine if the provider supports the IP address that you want to use. To determine the list of IP addresses that the provider supports, call the [IND2Provider::QueryAddressList](./IND2Provider.md#query-address-list) method. [IND2Provider](./IND2Provider.md) interface describes details about getting an interface to the NetworkDirect adapter that you want to use.
+Now that you have a provider, you need to determine if the provider supports the IP address that you want to use. To determine the list of IP addresses that the provider supports, call the [IND2Provider::QueryAddressList](./IND2Provider.md#ind2providerqueryaddresslist) method. [IND2Provider](./IND2Provider.md) interface describes details about getting an interface to the NetworkDirect adapter that you want to use.
 
 ### Getting an interface to a NetworkDirect adapter
-If you know the IP address of the NetworkDirect adapter that you want to use, call the [IND2Provider::OpenAdapter](./IND2Provider.md#open-adatper) method. If not, you first need to determine the local IP address of the adapter that will give you the best access to the destination address. For example, you could call the [GetBestInterfaceEx](https://docs.microsoft.com/windows/desktop/api/iphlpapi/nf-iphlpapi-getbestinterfaceex) function to get the local address.
+If you know the IP address of the NetworkDirect adapter that you want to use, call the [IND2Provider::OpenAdapter](./IND2Provider.md#ind2provideropenadapter) method. If not, you first need to determine the local IP address of the adapter that will give you the best access to the destination address. For example, you could call the [GetBestInterfaceEx](https://docs.microsoft.com/windows/desktop/api/iphlpapi/nf-iphlpapi-getbestinterfaceex) function to get the local address.
 
-After getting the local IP address, call the QueryAddressList method and enumerate the IP addresses that the provider supports. If the provider supports your local IP address, call the [IND2Provider::OpenAdapter](./IND2Provider.md#open-adatper) method to get an interface to the adapter.
+After getting the local IP address, call the QueryAddressList method and enumerate the IP addresses that the provider supports. If the provider supports your local IP address, call the [IND2Provider::OpenAdapter](./IND2Provider.md#ind2provideropenadapter) method to get an interface to the adapter.
 
 
 ## Asynchronous operations
