@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\src.props" />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\;..\ndtestutil\;$(OutIncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;ws2_32.lib;uuid.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir)\..\ndutil\;..\ndtestutil\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\ndutil\ndutil.vcxproj">
+      <Project>{6955ed94-3b21-4835-838a-a797aff63183}</Project>
+      <!-- A bug in quickbuild requires that we explicitly clear this out: https://mseng.visualstudio.com/Domino/_workitems/edit/1246025 -->
+      <SetPlatform />
+    </ProjectReference>
+    <ProjectReference Include="..\ndtestutil\ndtestutil.vcxproj">
+      <!-- A bug in quickbuild requires that we explicitly clear this out: https://mseng.visualstudio.com/Domino/_workitems/edit/1246025 -->
+      <SetPlatform />
+    </ProjectReference>
+  </ItemGroup>
+</Project>

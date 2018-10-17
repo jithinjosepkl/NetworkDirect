@@ -1,0 +1,28 @@
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <ItemGroup>
+    <ProjectFile Include="$(MSBuildThisFileDirectory)src\dirs.proj" />
+  </ItemGroup>
+  <Import Project="$(TraversalTargets)" Condition=" '$(CBTModulesRestored)' == 'true' " />
+
+  <!-- 
+    *********************
+       Create and Load dirs.sln in VS 2017
+       From a Developer Command Prompt for VS 2017 CMD:
+       To generate dirs.sln only:
+            1. "msbuild /t:SlnGen"
+       To generate dirs.sln and load in VS 2017:
+            2. a)  "set SlnGenLaunchVisualStudio=true & msbuild /t:SlnGen"
+               b)  "msbuild /t:SlnGen /p:SlnGenLaunchVisualStudio=true"
+    *********************
+  -->
+  <PropertyGroup>
+    <SlnGenLaunchVisualStudio Condition="'$(SlnGenLaunchVisualStudio)' == ''">false</SlnGenLaunchVisualStudio>
+    <SlnGenSolutionFileFullPath>$(MSBuildProjectDirectory)\$(MSBuildProjectName).sln</SlnGenSolutionFileFullPath>
+    <SlnGenUseShellExecute>false</SlnGenUseShellExecute>
+    <SlnGenCollectStats>true</SlnGenCollectStats>
+    <SlnGenDevEnvFullPath>$(VSINSTALLDIR)Common7\IDE\devenv.exe</SlnGenDevEnvFullPath>
+  </PropertyGroup>
+  <Import Project="$(CBTModule_SlnGen)\build\SlnGen.targets" Condition="Exists('$(CBTModule_SlnGen)\build\SlnGen.targets')"/>
+
+  </Project>
