@@ -7,6 +7,8 @@ The IND2QueuePair interface inherits the methods of the [IUnknown](https://docs.
 - [__Flush__](#ind2queuepairflush) - Cancels all outstanding requests in the inbound and outbound completion queues.
 - [__Send__](#ind2queuepairsend) - Sends data to a remote peer.
 - [__Receive__](#ind2queuepairreceive) - Receives data from a remote peer.
+- [__Bind__](#ind2queuepairbind) - Binds a memory window to a buffer that is within the registered memory.
+- [__Invalidate__](ind2queuepairinvalidate) - Invalidates a local memory window.
 - [__Read__](#ind2queuepairread) - Initiates an RDMA Read request.
 - [__Write__](#ind2queuepairwrite) - Initiates an RDMA Write request.
 
@@ -162,6 +164,118 @@ You can call this method at any time, the queue pair does not have to be connect
 You must post a Receive request before the peer posts a Send request. The buffers that you specify must be large enough to receive the sent data. If not, the Send request fails and the connection is terminated; the completion status for the Receive request is ND_BUFFER_OVERFLOW. If the Receive request fails, the queue pair can still process existing or future requests.
 
 The protocol determines how many Receive requests you must post and the buffer size that is required for each post.
+
+If the method fails, the queue pair can still process existing or future requests. However, if the [IND2CompletionQueue::GetResults](./IND2CompletionQueue.md#ind2completionqueuegetresults) method returns an [ND2_RESULT](./IND2CompletionQueue.md#nd2_result-structure) with an error status, the connection is terminated and any further requests are completed with ND_CANCELED status.
+
+## IND2QueuePair::Bind
+Binds a memory window to a buffer that is within the registered memory.
+```
+HRESULT Bind(
+ [in] VOID *requestContext,
+ [in] IUnknown *pMemoryRegion,
+ [in] IUnknown *pMemoryWindow,
+ [in] const VOID *pBuffer,
+ [in] SIZE_T cbBuffer,
+ [in] ULONG flags
+);
+```
+__Parameters:__
+
+- __requestContext__ [in]
+
+  A context value to associate with the request, returned in the RequestContext member of the [ND2_RESULT](./IND2CompletionQueue.md#nd2_result-structure) structure that is returned when the request completes.
+
+- __pMemoryRegion__ [in]
+
+  The memory region to which to bind the memory window. The [IND2Adapter::CreateMemoryRegion](./IND2Adapter.md#ind2adaptercreatememoryregion) method returns this interface.
+
+- __pMemoryWindow__ [in]
+
+  The memory window to bind to the registered memory. The [IND2Adapter::CreateMemoryWindow](./IND2Adapter.md#ind2adaptercreatememorywindow) method returns this interface.
+
+- __pBuffer__ [in]
+
+  A buffer within the registered memory to which the memory window is bound. This buffer must be entirely within the bounds of the specified registered memory.
+
+- __cbBuffer__ [in]
+
+  The size, in bytes, of the memory window buffer.
+
+- __flags__ [in]
+
+  The following flags control the operations that the remote peer can perform against the memory. You can specify one or more of the following flags (you must specify at least __ND_OP_FLAG_ALLOW_READ__ or __ND_OP_FLAG_ALLOW_WRITE__):
+
+  - __ND_OP_FLAG_SILENT_SUCCESS__
+
+      If the request completes successfully, do not generate an entry in the completion queue. Requests that fail will generate an entry in the completion queue.
+  - __ND_OP_FLAG_READ_FENCE__
+
+      All prior Read requests must be complete before the hardware processes new requests.
+  - __ND_OP_FLAG_ALLOW_READ__
+  
+      A remote peer can perform Read operations against the memory window.
+  - __ND_OP_FLAG_ALLOW_WRITE__
+  
+      A remote peer can perform Write operations against the memory window.
+
+__Return Value:__
+
+When you implement this method, you should return the following return values. If you return others, try to use well-known values to aid in debugging issues.
+
+- __ND_SUCCESS__ - The operation succeeded. Completion status will be returned through the outbound completion queue associated with the queue pair.
+- __ND_CONNECTION_INVALID__ - The queue pair is not connected.
+- __ND_NO_MORE_ENTRIES__ - The request would have exceeded the number of outbound requests allowed on the queue pair. The initiatorQueueDepth parameter of the [IND2Adapter::CreateQueuePair](./IND2Adapter.md#ind2adaptercreatequeuepair) method specifies the limit.
+- __ND_ACCESS_VIOLATION__ - The memory region does not allow the type of access requested for the memory window. ND_OP_FLAG_ALLOW_WRITE requires a memory region registered with ND_MR_FLAG_ALLOW_LOCAL_WRITE.
+
+__Remarks:__
+
+The remote peer can use the window for Read and Write operations after you send the window descriptor to the remote peer. Typically, you send the descriptor as part of a Send request.
+
+The memory window can be bound to only one queue pair at a time. To unbind the window, you can call the [IND2QueuePair::Invalidate](#ind2queuepairinvalidate) method.
+
+If the method fails, the queue pair can still process existing or future requests. However, if the [IND2CompletionQueue::GetResults](./IND2CompletionQueue.md#ind2completionqueuegetresults) method returns an [ND2_RESULT](./IND2CompletionQueue.md#nd2_result-structure) with an error status, the connection is terminated and any further requests are completed with ND_CANCELED status.
+
+The token for accessing the remote memory can be retrieved through the [IND2MemoryWindow::GetRemoteToken](./IND2MemoryWindow.md#ind2memorywindowgetremotetoken) method as soon as this method returns, before the Bind operation completion is reported through the [IND2CompletionQueue::GetResults](./IND2CompletionQueue.md#ind2completionqueuegetresults) method.
+
+## IND2QueuePair::Invalidate
+Invalidates a local memory window. Any in-progress data transfers that reference the memory window will fail.
+```
+HRESULT Invalidate(
+ [in] VOID *requestContext,
+ [in] IUnknown *pMemoryWindow,
+ [in] ULONG flags
+);
+```
+__Parameters:__
+- __requestContext__ [in] 
+
+  A client-defined opaque value, returned in the RequestContext member of an [ND2_RESULT](./IND2CompletionQueue.md#nd2_result-structure) structure that is filled in by [IND2CompletionQueue::GetResults](./IND2CompletionQueue.md#ind2completionqueuegetresults) method.
+- __pMemoryWindow__ [in]
+
+  An interface of the memory window to invalidate. Invalidating the window lets the window be bound again to a different region of registered memory.
+- __flags__ [in] 
+
+  The following flags control the behavior of the operation. You can specify one or both of the flags:
+
+  - __ND_OP_FLAG_SILENT_SUCCESS__
+
+    The successful completion of the request does not generate a completion in the outbound completion queue. However, requests that fail will generate a completion in the completion queue.
+  - __ND_OP_FLAG_READ_FENCE__
+
+    All prior Read requests must be complete before the hardware begins processing the request.
+
+__Return Value:__
+
+When you implement this method, you should return the following return values. If you return others, try to use well-known values to aid in debugging issues.
+
+- __ND_SUCCESS__ - The operation succeeded. Completion status will be returned through the outbound completion queue associated with this queue pair.
+- __ND_CONNECTION_INVALID__ - The queue pair is not connected.
+- __ND_NO_MORE_ENTRIES__ - The request would have exceeded the number of outbound requests allowed on the queue pair. The initiatorQueueDepth parameter of the [IND2Adapter::CreateQueuePair](./IND2Adapter.md#ind2adaptercreatequeuepair) method specifies the limit.
+
+__Remarks:__
+
+A queue pair can call this method after receiving notification from a peer that it is done with the memory window. 
+Invalidating a memory window prevents further access to the window. Further references to the memory window in an RDMA Read or Write would result in a fatal error on the queue pair and the connection will be terminated.
 
 If the method fails, the queue pair can still process existing or future requests. However, if the [IND2CompletionQueue::GetResults](./IND2CompletionQueue.md#ind2completionqueuegetresults) method returns an [ND2_RESULT](./IND2CompletionQueue.md#nd2_result-structure) with an error status, the connection is terminated and any further requests are completed with ND_CANCELED status.
 

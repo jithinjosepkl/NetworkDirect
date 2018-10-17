@@ -9,6 +9,7 @@ The IND2Adapter interface inherits from [IUnknown interface](https://docs.micros
 - [__QueryAddressList__](#ind2adapterqueryaddresslist) - Returns the IPv4 and IPv6 addresses that are supported by the adapter instance.
 - [__CreateCompletionQueue__](#ind2adaptercreatecompletionqueue) - Allocates a completion queue.
 - [__CreateMemoryRegion__](#ind2adaptercreatememoryregion) - Creates an [IND2MemoryRegion](./IND2MemoryRegion.md) instance that can be used to register an application-defined buffer to be used in requests issued to the initiator and receive queues of a queue pair.
+- [__CreateMemoryWindow__](#ind2adaptercreatememorywindow) - Creates a memory window instance in the invalidated state.
 - [__CreateSharedReceiveQueue__](#ind2adaptercreatesharedreceivequeue) - Creates a new [IND2SharedReceiveQueue](./IND2SharedReceiveQueue.md) instance.
 - [__CreateQueuePair__](#ind2adaptercreatequeuepair) - Creates a new [IND2QueuePair](./IND2QueuePair.md) instance.
 - [__CreateQueuePairWithSrq__](#ind2adaptercreatequeuepairwithsrq) - Creates a new [IND2QueuePair](./IND2QueuePair.md) instance that uses a shared receive queue.
@@ -377,6 +378,42 @@ When you implement this method, you should return the following return values. I
 __Remarks__
 
 You must create memory regions to reference memory in data transfer operations.
+
+# IND2Adapter::CreateMemoryWindow
+Creates an uninitialized memory window.
+```
+HRESULT CreateMemoryWindow(
+ [in] REFIID iid, 
+ [out] void **ppMemoryWindow
+);
+```
+__Parameters:__
+- __iid__ [in]
+
+  The IID of the memory region interface requested. IID_IND2MemoryRegion must be supported, but other IIDs may be supported as new interfaces are defined.
+  
+- __ppMemoryWindow__ [out]
+
+  An INDMemoryWindow interface.
+
+__Return Value:__
+
+When you implement this method, you should return the following return values. If you return others, try to use well-known values to aid in debugging issues.
+
+- __ND_SUCCESS__ - The operation completed successfully.
+- __ND_INSUFFICIENT_RESOURCES__ - There was not enough hardware resources to create the memory window.
+- __ND_DEVICE_REMOVED__ - The underlying NetworkDirect adapter was removed from the system. Only cleanup operations on the NetworkDirect adapter will succeed.
+
+__Remarks:__
+
+You need to create a memory window and bind it to registered memory only if the connected peer is going to perform Read and Write operations and you want fine-grained access control to a long-lived memory registration. The side issuing the Read and Write requests does not create the memory window. 
+
+The memory window becomes valid when you bind it to registered memory. For more information, see [IND2Adapter::CreateMemoryRegion](./IND2Adapter.md#ind2adaptercreatememoryregion) method.
+
+To bind the window to registered memory, call the [IND2QueuePair::Bind](./IND2QueuePair.md#ind2queuepairbind) method. The window can be bound to only a single queue pair at one time. However, the window could be bound to a different queue pair after being invalidated.
+
+To invalidate the window, call the [IND2QueuePair::Invalidate](./IND2QueuePair.md#ind2queuepairinvalidate) method. You should not invalidate the window unless you receive a message from the connected peer indicating that the connected peer is done accessing the window.
+
 
 ## IND2Adapter::CreateSharedReceiveQueue
 Allocates a shared receive queue.
