@@ -704,15 +704,15 @@ private:
     __callback static void GetConnectionRequestFailed(COverlapped* pOv);
 
 private:
-    IND2Adapter * m_pAdapter;
-    IND2Listener* m_pListen;
+    IND2Adapter  *m_pAdapter = nullptr;
+    IND2Listener *m_pListen = nullptr;
     COverlapped m_ListenOv;
-    IND2Connector* m_pConnector;
-    HANDLE m_hAdapterFile;
-    HANDLE m_hIocp;
+    IND2Connector *m_pConnector = nullptr;
+    HANDLE m_hAdapterFile = nullptr;
+    HANDLE m_hIocp = nullptr;
 
-    CConn* m_pConn[2];
-    USHORT m_Rank;
+    CConn* m_pConn[2] = {0};
+    USHORT m_Rank = 0;
 };
 
 // CRank: represents a rank in the test.
