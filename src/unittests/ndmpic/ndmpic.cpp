@@ -205,8 +205,8 @@ private:
         CloseAck
     };
 
-    struct sockaddr_in m_Addr;
-    struct sockaddr_in m_srcAddr;
+    struct sockaddr_in m_Addr = { 0 };
+    struct sockaddr_in m_srcAddr = { 0 };
     USHORT m_Rank;
     USHORT m_PeerRank;
     bool m_Active;
@@ -483,13 +483,6 @@ void CConn::AcceptSucceeded(COverlapped* pOv)
 {
     CConn* pConn = CONTAINING_RECORD(pOv, CConn, m_Ov);
     printf("%hu connected to %hu\n", pConn->m_Rank, pConn->m_PeerRank);
-
-    /*HRESULT hr = pConn->m_pConn->GetOverlappedResult(pOv, false);
-    if (FAILED(hr))
-    {
-        pConn->Release();
-        LOG_FAILURE_HRESULT_AND_EXIT(hr, L"GetOverlappedResult failed with %08x", __LINE__);
-    }*/
 
     if (--pConn->m_nIoOperationsUntilDisconnect == 0)
     {

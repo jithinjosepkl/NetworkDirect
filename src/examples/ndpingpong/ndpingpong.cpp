@@ -70,6 +70,7 @@ public:
 
         ND2_ADAPTER_INFO adapterInfo = { 0 };
         NdTestBase::GetAdapterInfo(&adapterInfo);
+
         m_queueDepth = min(adapterInfo.MaxCompletionQueueDepth, adapterInfo.MaxReceiveQueueDepth);
         m_queueDepth = (queueDepth != 0) ? min(queueDepth, m_queueDepth) : m_queueDepth;
         m_inlineThreshold = adapterInfo.InlineRequestThreshold;
@@ -169,7 +170,7 @@ private:
     char *m_pBuf = nullptr;
     ND2_SGE* m_sendSgl = nullptr;
     ND2_SGE* m_recvSgl = nullptr;
-    DWORD m_nMaxSge, m_nRecvSge, m_queueDepth, m_inlineThreshold;
+    DWORD m_nMaxSge = 0, m_nRecvSge = 0, m_queueDepth = 0, m_inlineThreshold = 0;
     bool m_bUseEvents = false;
     bool m_bSendCompleted = false;
     bool m_bRecvCompleted = false;
@@ -210,6 +211,7 @@ public:
 
         ND2_ADAPTER_INFO adapterInfo;
         NdTestBase::GetAdapterInfo(&adapterInfo);
+
         m_queueDepth = min(adapterInfo.MaxCompletionQueueDepth, adapterInfo.MaxInitiatorQueueDepth);
         m_queueDepth = (queueDepth != 0) ? min(queueDepth, m_queueDepth) : m_queueDepth;
         m_inlineThreshold = adapterInfo.InlineRequestThreshold;
@@ -248,9 +250,9 @@ public:
         Ping(1000, x_HdrLen);
         Sleep(1000);
 
-        for (DWORD szXfer = 1; szXfer <= x_MaxXfer; szXfer <<= 1)
+        for (ULONG szXfer = 1; szXfer <= x_MaxXfer; szXfer <<= 1)
         {
-            DWORD iterations = x_MaxIterations;
+            ULONG iterations = x_MaxIterations;
             if (iterations > (x_MaxVolume / szXfer))
             {
                 iterations = x_MaxVolume / szXfer;
@@ -268,7 +270,7 @@ public:
             double bytesSec = 2.0 * szXfer * iterations / (m_Timer.Report() / 1000000.0);
             // Factor of 2 to account for half-round trip latency.
             double latency = (m_Timer.Report() / iterations) / 2.0;
-            printf(" %9u %9u %9.2f %7.2f %11.0f\n",
+            printf(" %9ul %9ul %9.2f %7.2f %11.0f\n",
                 szXfer,
                 iterations,
                 latency,
@@ -327,10 +329,10 @@ public:
 
 private:
     char *m_pBuf = nullptr;
-    DWORD m_queueDepth, m_inlineThreshold;
+    DWORD m_queueDepth = 0, m_inlineThreshold = 0;
     ND2_SGE* m_sendSgl = nullptr;
     ND2_SGE* m_recvSgl = nullptr;
-    DWORD m_nMaxSge, m_nRecvSge;
+    DWORD m_nMaxSge = 0, m_nRecvSge = 0;
     bool m_bUseEvents = false;
     bool m_bSendCompleted = false;
     bool m_bRecvCompleted = false;

@@ -30,7 +30,7 @@ void NdWriteViolationServer::RunTest(
 
     // Pre-post receive request.
     ND2_SGE Sge;
-    const ND_MW_DESCRIPTOR* ndmd = reinterpret_cast<const ND_MW_DESCRIPTOR*>(m_Buf);
+    const MemoryWindowDesc* ndmd = reinterpret_cast<const MemoryWindowDesc*>(m_Buf);
     Sge.Buffer = m_Buf;
     Sge.BufferLength = sizeof(*ndmd);
     Sge.MemoryRegionToken = m_pMr->GetLocalToken();
@@ -41,8 +41,8 @@ void NdWriteViolationServer::RunTest(
 
     //Get result for the pre-posted receive
     NdTestBase::WaitForCompletion(ND_SUCCESS);
-    UINT64 addr = ndmd->Base;
-    UINT32 token = ndmd->Token;
+    UINT64 addr = ndmd->base;
+    UINT32 token = ndmd->token;
 
     //try to write to the remote MW, should get error
     Sge.BufferLength = x_MaxXfer;
@@ -82,10 +82,10 @@ void NdWriteViolationClient::RunTest(
     NdTestBase::Bind(x_MaxXfer, ND_OP_FLAG_ALLOW_READ);
 
     //prepare memory descriptor
-    ND_MW_DESCRIPTOR* ndmd = (ND_MW_DESCRIPTOR*)m_Buf;
-    ndmd->Base = (UINT64)m_Buf;
-    ndmd->Token = m_pMw->GetRemoteToken();
-    ndmd->Length = x_MaxXfer;
+    MemoryWindowDesc* ndmd = (MemoryWindowDesc*)m_Buf;
+    ndmd->base = (UINT64)m_Buf;
+    ndmd->token = m_pMw->GetRemoteToken();
+    ndmd->length = x_MaxXfer;
 
     //prepare Sge
     ND2_SGE Sge;

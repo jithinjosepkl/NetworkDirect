@@ -191,7 +191,7 @@ public:
             if (threadParam->m_tId == 0)
             {
                 printf(
-                    "%9ld %9ld %9.2f %9.2f  %9.2f %9.2f\n",
+                    "%9ul %9ul %9.2f %9.2f  %9.2f %9.2f\n",
                     szXfer,
                     iters,
                     timer.ReportPreSplit() / iters,

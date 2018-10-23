@@ -155,12 +155,12 @@ public:
     }
 
 private:
-    DWORD m_queueDepth;
+    DWORD m_queueDepth = 0;
     ND2_SGE* m_sgl = nullptr;
-    DWORD m_nSge;
-    char *m_pBuf;
+    DWORD m_nSge = 0;
+    char *m_pBuf = nullptr;
     bool m_bUseEvents = false;
-    DWORD m_inlineSizeThreshold;
+    DWORD m_inlineSizeThreshold = 0;
 };
 
 class NdPingClient : public NdTestClientBase
@@ -268,15 +268,15 @@ public:
             numSendSges = NdTestBase::PrepareSge(m_sendSgl, nMaxSge,
                 m_pBuf, szXfer, x_HdrLen, m_pMr->GetLocalToken());
 
-            SIZE_T Iterations = x_MaxIterations;
-            if (Iterations > (x_MaxVolume / szXfer))
+            ULONG iterations = x_MaxIterations;
+            if (iterations > (x_MaxVolume / szXfer))
             {
-                Iterations = x_MaxVolume / szXfer;
+                iterations = x_MaxVolume / szXfer;
             }
 
             cpu.Start();
             timer.Start();
-            HRESULT hr = SendPings(Iterations, numSendSges, szXfer);
+            HRESULT hr = SendPings(iterations, numSendSges, szXfer);
             if (FAILED(hr))
             {
                 LOG_FAILURE_AND_EXIT(L"Connection unexpectedly aborted.", __LINE__);
@@ -286,12 +286,12 @@ public:
             cpu.End();
 
             printf(
-                " %9ld %9Id %9.2f %7.2f %11.0f\n",
+                " %9ul %9ul %9.2f %7.2f %11.0f\n",
                 szXfer,
-                Iterations,
-                timer.Report() / Iterations,
+                iterations,
+                timer.Report() / iterations,
                 cpu.Report(),
-                szXfer * Iterations / (timer.Report() / 1000000)
+                (double) szXfer * iterations / (timer.Report() / 1000000)
             );
         }
 
@@ -395,15 +395,15 @@ public:
 
 private:
     char *m_pBuf = nullptr;
-    DWORD m_queueDepth;
+    DWORD m_queueDepth = 0;
     size_t m_maxOutSends = 0;
     size_t m_numOutSends = 0;
     bool m_bUseEvents = false;
     ULONG m_nCredits = 0;
     ULONG m_peerQueueDepth = 0;
-    ND2_SGE *m_sendSgl, *m_recvSgl;
-    DWORD m_numRecvSge;
-    DWORD m_inlineSizeThreshold;
+    ND2_SGE *m_sendSgl = nullptr, *m_recvSgl = nullptr;
+    DWORD m_numRecvSge = 0;
+    DWORD m_inlineSizeThreshold = 0;
 };
 
 int __cdecl _tmain(int argc, TCHAR* argv[])

@@ -87,7 +87,7 @@ private:
     __callback static void RecvFailed(_In_ NDConnOverlapped* pOv);
     __callback static DWORD CALLBACK ServerTestRoutine(_In_ LPVOID This);
 
-    DWORD m_nThreads;
+    DWORD m_nThreads = 0;
     volatile bool m_bEndTest = false;
 
     IND2CompletionQueue *m_pSendCq = nullptr;
@@ -99,7 +99,7 @@ private:
 
     volatile long long m_AcceptTime = 0;
     volatile long long m_DisconnectTime = 0;
-    HANDLE m_hIocp;
+    HANDLE m_hIocp = nullptr;
 };
 
 class NDConnReq : public NDConnOverlapped
@@ -266,12 +266,12 @@ private:
     LONG m_nThreads;
 
 protected:
-    struct sockaddr_in m_serverAddr;
-    struct sockaddr_in m_srcAddr;
+    struct sockaddr_in m_serverAddr = {0};
+    struct sockaddr_in m_srcAddr = {0};
 
     IND2CompletionQueue *m_pSendCq = nullptr;
     IND2CompletionQueue *m_pRecvCq = nullptr;
-    HANDLE m_hIocp;
+    HANDLE m_hIocp = nullptr;
     
     NDConnOverlapped m_SendOv;
     NDConnOverlapped m_RecvOv;

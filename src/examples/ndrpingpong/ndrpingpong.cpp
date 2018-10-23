@@ -116,6 +116,12 @@ public:
         ND2_ADAPTER_INFO adapterInfo = { 0 };
         NdTestBase::GetAdapterInfo(&adapterInfo);
 
+        // Make sure adapter supports in-order RDMA
+        if ((adapterInfo.AdapterFlags & ND_ADAPTER_FLAG_IN_ORDER_DMA_SUPPORTED) == 0)
+        {
+            LOG_FAILURE_AND_EXIT(L"Adapter does not support in-order RDMA.", __LINE__);
+        }
+
         m_queueDepth = (queueDepth > 0) ?
             min(queueDepth, adapterInfo.MaxCompletionQueueDepth) :
             adapterInfo.MaxCompletionQueueDepth;
@@ -221,11 +227,11 @@ private:
     bool m_blocking = false;
     bool m_termReceived = true;
     ULONG m_queueDepth = 0;
-    ULONG m_inlineThreshold;
+    ULONG m_inlineThreshold = 0;
     ULONG m_nMaxSge = 0;
-    UINT64 m_remoteAddress;
-    UINT32 m_remoteToken;
-    ND2_SGE *m_sgl;
+    UINT64 m_remoteAddress = 0;
+    UINT32 m_remoteToken = 0;
+    ND2_SGE *m_sgl = nullptr;
 };
 
 class NdrPingPongClient : public NdTestClientBase
@@ -280,6 +286,12 @@ public:
         NdTestBase::Init(v4Src);
         ND2_ADAPTER_INFO adapterInfo = { 0 };
         NdTestBase::GetAdapterInfo(&adapterInfo);
+
+        // Make sure adapter supports in-order RDMA
+        if ((adapterInfo.AdapterFlags & ND_ADAPTER_FLAG_IN_ORDER_DMA_SUPPORTED) == 0)
+        {
+            LOG_FAILURE_AND_EXIT(L"Adapter does not support in-order RDMA.", __LINE__);
+        }
 
         m_queueDepth = (queueDepth > 0) ?
             min(queueDepth, adapterInfo.MaxCompletionQueueDepth) :
@@ -386,12 +398,12 @@ public:
             cpu.End();
 
             printf(
-                " %9ld %9ld %9.2f %7.2f %11.0f\n",
+                " %9ul %9ul %9.2f %7.2f %11.0f\n",
                 szXfer,
                 iterations,
                 timer.Report() / iterations,
                 cpu.Report(),
-                szXfer * iterations / (timer.Report() / 1000000)
+                (double) szXfer * iterations / (timer.Report() / 1000000)
             );
         }
 
@@ -422,9 +434,9 @@ private:
     ND2_SGE *m_Sgl = nullptr;
     ULONG m_nMaxSge = 0;
     ULONG m_queueDepth = 0;
-    UINT64 m_remoteAddress;
-    UINT32 m_remoteToken;
-    ULONG m_inlineThreshold;
+    UINT64 m_remoteAddress = 0;
+    UINT32 m_remoteToken = 0;
+    ULONG m_inlineThreshold = 0;
 };
 
 int __cdecl _tmain(int argc, TCHAR* argv[])

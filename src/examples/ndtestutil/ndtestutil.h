@@ -77,13 +77,13 @@ inline void LogInfo(
 class NdTestBase
 {
 protected:
-    IND2Adapter * m_pAdapter;
-    IND2MemoryRegion* m_pMr;
-    IND2CompletionQueue* m_pCq;
-    IND2QueuePair* m_pQp;
-    IND2Connector* m_pConnector;
+    IND2Adapter *m_pAdapter;
+    IND2MemoryRegion *m_pMr;
+    IND2CompletionQueue *m_pCq;
+    IND2QueuePair *m_pQp;
+    IND2Connector *m_pConnector;
     HANDLE m_hAdapterFile;
-    DWORD m_Buf_Len;
+    DWORD m_Buf_Len = 0;
     void* m_Buf;
     IND2MemoryWindow* m_pMw;
     OVERLAPPED m_Ov;

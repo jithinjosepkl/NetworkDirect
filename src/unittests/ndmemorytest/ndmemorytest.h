@@ -17,6 +17,13 @@ const DWORD x_HdrLen = 40;
 const SIZE_T x_MaxVolume = (500 * x_MaxXfer);
 const DWORD x_MaxIterations = 100000;
 
+struct MemoryWindowDesc
+{
+    UINT64 base;
+    UINT64 length;
+    UINT32 token;
+};
+
 class NdWriteViolationServer : public NdTestServerBase
 {
 public:

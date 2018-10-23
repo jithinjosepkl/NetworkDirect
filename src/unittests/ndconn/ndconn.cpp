@@ -473,8 +473,8 @@ void NDConnServer::RunTest(
         PostQueuedCompletionStatus(m_hIocp, 0, 0, nullptr);
     }
 
-    LONGLONG nEpConnected = m_nQpCreated - m_nConnFailure;
-    double ConnRate = (double)(m_nQpCreated - m_nConnFailure) / (timer.Report() / 1000000.0);
+    long nEpConnected = m_nQpCreated - m_nConnFailure;
+    double ConnRate = ((double)m_nQpCreated - (double)m_nConnFailure) / (timer.Report() / 1000000.0);
     printf("%7.2f connections per second\n", ConnRate);
 
     // Print results
@@ -927,7 +927,7 @@ void NDConnClient::RunTest(
     timer.Start();
 
     // Run for a minute.
-    Sleep(20000);
+    Sleep(60000);
 
     // Signal the end of the test.
     m_bEndTest = true;
@@ -946,7 +946,7 @@ void NDConnClient::RunTest(
 
     // Print results
     timer.End();
-    LONGLONG nEpConnected = m_nQpCreated - m_nConnFailure;
+    long nEpConnected = m_nQpCreated - m_nConnFailure;
     double ConnRate = (double)nEpConnected / (timer.Report() / 1000000.0);
     printf("%7.2f connections per second\n", ConnRate);
 

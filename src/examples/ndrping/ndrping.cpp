@@ -68,8 +68,14 @@ public:
         NdTestBase::Init(v4Src);
         ND2_ADAPTER_INFO adapterInfo = { 0 };
         NdTestBase::GetAdapterInfo(&adapterInfo);
-        m_maxIncomingReads = adapterInfo.MaxInboundReadLimit;
 
+        // Make sure adapter supports in-order RDMA
+        if ((adapterInfo.AdapterFlags & ND_ADAPTER_FLAG_IN_ORDER_DMA_SUPPORTED) == 0)
+        {
+            LOG_FAILURE_AND_EXIT(L"Adapter does not support in-order RDMA.", __LINE__);
+        }
+
+        m_maxIncomingReads = adapterInfo.MaxInboundReadLimit;
         NdTestBase::CreateCQ(adapterInfo.MaxCompletionQueueDepth);
         NdTestBase::CreateConnector();
         NdTestBase::CreateQueuePair(min(adapterInfo.MaxCompletionQueueDepth, adapterInfo.MaxReceiveQueueDepth), 1);
@@ -211,6 +217,12 @@ public:
         ND2_ADAPTER_INFO adapterInfo = { 0 };
         NdTestBase::GetAdapterInfo(&adapterInfo);
 
+        // Make sure adapter supports in-order RDMA
+        if ((adapterInfo.AdapterFlags & ND_ADAPTER_FLAG_IN_ORDER_DMA_SUPPORTED) == 0)
+        {
+            LOG_FAILURE_AND_EXIT(L"Adapter does not support in-order RDMA.", __LINE__);
+        }
+
         m_queueDepth = (queueDepth > 0) ? min(queueDepth, adapterInfo.MaxCompletionQueueDepth) : adapterInfo.MaxCompletionQueueDepth;
         m_queueDepth = min(m_queueDepth, adapterInfo.MaxInitiatorQueueDepth);
         m_nMaxSge = min(nSge, adapterInfo.MaxInitiatorSge);
@@ -296,12 +308,12 @@ public:
             cpu.End();
 
             printf(
-                " %9ld %9ld %9.2f %7.2f %11.0f\n",
+                " %9ul %9ul %9.2f %7.2f %11.0f\n",
                 szXfer,
                 iterations,
                 timer.Report() / iterations,
                 cpu.Report(),
-                szXfer * iterations / (timer.Report() / 1000000)
+                (double) szXfer * iterations / (timer.Report() / 1000000)
             );
         }
 
@@ -321,8 +333,8 @@ private:
     ULONG m_availCredits = 0;
     ULONG m_nMaxSge = 0;
     ULONG m_inlineThreshold = 0;
-    UINT64 m_remoteAddress;
-    UINT32 m_remoteToken;
+    UINT64 m_remoteAddress = 0;
+    UINT32 m_remoteToken = 0;
 };
 
 int __cdecl _tmain(int argc, TCHAR* argv[])

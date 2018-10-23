@@ -41,7 +41,7 @@ void NdLargePrivateDataServer::RunTest(
 
 
     // give it the correct private data size/buffer size, but larger than what the hardware can support
-    void* data = new (std::nothrow) char[maxCalleeData + 1];
+    void* data = new (std::nothrow) char[maxCalleeData + 1LL];
     NdTestServerBase::Accept(1, 1, data, maxCalleeData + 1,
         ND_INVALID_BUFFER_SIZE, "Expecting Access violation when data exceeds MaxCalleeData");
     delete[] data;
@@ -85,7 +85,7 @@ void NdLargePrivateDataClient::RunTest(
     DWORD maxCallerData = adaptorInfo.MaxCallerData;
 
     //attempt to connect with larger private data
-    const void* data = new (std::nothrow) char[maxCallerData + 1];
+    const void* data = new (std::nothrow) char[maxCallerData + 1LL];
     NdTestClientBase::Connect(v4Src, v4Dst, 1, 1, data, maxCallerData + 1,
         ND_INVALID_BUFFER_SIZE, "Expecting Access violation when data size is bigger than maxCallerData");
     delete[] data;
